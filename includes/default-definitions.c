@@ -1,0 +1,45 @@
+// for legacy support
+#if defined(OPT_DEBOUNCE) && !defined(PLOOPY_SCROLL_DEBOUNCE)
+#    define PLOOPY_SCROLL_DEBOUNCE OPT_DEBOUNCE
+#endif
+#if defined(SCROLL_BUTT_DEBOUNCE) && !defined(PLOOPY_SCROLL_BUTTON_DEBOUNCE)
+#    define PLOOPY_SCROLL_BUTTON_DEBOUNCE SCROLL_BUTT_DEBOUNCE
+#endif
+
+#ifndef PLOOPY_SCROLL_DEBOUNCE
+#    define PLOOPY_SCROLL_DEBOUNCE 5
+#endif
+#ifndef PLOOPY_SCROLL_BUTTON_DEBOUNCE
+#    define PLOOPY_SCROLL_BUTTON_DEBOUNCE 100
+#endif
+
+#ifndef PLOOPY_DPI_OPTIONS
+#    define PLOOPY_DPI_OPTIONS \
+        { 600, 900, 1200, 1600, 2400 }
+#    ifndef PLOOPY_DPI_DEFAULT
+#        define PLOOPY_DPI_DEFAULT 1
+#    endif
+#endif
+#ifndef PLOOPY_DPI_DEFAULT
+#    define PLOOPY_DPI_DEFAULT 0
+#endif
+#ifndef PLOOPY_DRAGSCROLL_DIVISOR_H
+#    define PLOOPY_DRAGSCROLL_DIVISOR_H 8.0
+#endif
+#ifndef PLOOPY_DRAGSCROLL_DIVISOR_V
+#    define PLOOPY_DRAGSCROLL_DIVISOR_V 8.0
+#endif
+#ifndef ENCODER_BUTTON_ROW
+#    define ENCODER_BUTTON_ROW 0
+#endif
+#ifndef ENCODER_BUTTON_COL
+#    define ENCODER_BUTTON_COL 0
+#endif
+
+// SIZE x FREQ = TIME window
+#ifndef SCROLL_HISTORY_SIZE
+#  define SCROLL_HISTORY_SIZE 30
+#endif
+#ifndef SCROLL_HISTORY_FREQ
+#  define SCROLL_HISTORY_FREQ 10
+#endif

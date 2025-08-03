@@ -34,7 +34,8 @@ enum ploopy_keycodes {
     DPI_CONFIG = QK_KB_0,
     DRAG_SCROLL,
     TOGGLE_DRAG_SCROLL,
-    SCROLL_OR_CLICK3
+    SCROLL_OR_CLICK3,
+    VOLUME_ON_SCROLL
 };
 
 bool encoder_update_user(uint8_t index, bool clockwise);

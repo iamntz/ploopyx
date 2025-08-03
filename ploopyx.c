@@ -27,18 +27,12 @@ uint16_t          dpi_array[] = PLOOPY_DPI_OPTIONS;
 
 // Trackball State
 bool  is_scroll_clicked    = false;
+bool  is_volume_on_scroll    = false;
 bool  is_drag_scroll       = false;
 float scroll_accumulated_h = 0;
 float scroll_accumulated_v = 0;
 
-int8_t scroll_history_x[SCROLL_HISTORY_SIZE];
-int8_t scroll_history_y[SCROLL_HISTORY_SIZE];
-uint16_t scroll_history_t[SCROLL_HISTORY_SIZE];
-uint8_t scroll_history_head = 0;
-uint8_t scroll_history_tail = 0;
-
 bool mouse_moved = false;
-
 
 void toggle_drag_scroll(void) {
     is_drag_scroll ^= 1;
@@ -51,10 +45,28 @@ void cycle_dpi(void) {
 }
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
+    static uint16_t volume_scroll_timer;
 
     mouse_moved = mouse_report.h != 0 || mouse_report.v != 0;
 
-    if (!is_drag_scroll) {
+    if (!is_drag_scroll && !is_volume_on_scroll) {
+        return pointing_device_task_user(mouse_report);
+    }
+
+    if (is_volume_on_scroll) {
+        if(timer_elapsed(volume_scroll_timer) > PLOOPY_VOLUME_SCROLL_DEBOUNCE) {
+            if ((float) mouse_report.y < 0) {
+                tap_code(KC_VOLU);
+            } else if ((float) mouse_report.y > 0) {
+                tap_code(KC_VOLD);
+            }
+
+            volume_scroll_timer = timer_read();
+        }
+            // Clear the X and Y values of the mouse report
+        mouse_report.x = 0;
+        mouse_report.y = 0;
+
         return pointing_device_task_user(mouse_report);
     }
 
@@ -68,8 +80,10 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         direction_modifier = -1;
     #endif
 
-    mouse_report.v = (int8_t)scroll_accumulated_v * direction_modifier;
-    mouse_report.h = (int8_t)scroll_accumulated_h * direction_modifier;
+    if (is_drag_scroll) {
+        mouse_report.v = (int8_t)scroll_accumulated_v * direction_modifier;
+        mouse_report.h = (int8_t)scroll_accumulated_h * direction_modifier;
+    }
 
     // Update accumulated scroll values by subtracting the integer parts
     scroll_accumulated_h -= (int8_t)scroll_accumulated_h;
@@ -85,10 +99,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
 bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
     static uint16_t drag_scroll_timer;
 
-
-    if (debug_mouse) {
-        dprintf("KL: kc: %u, col: %u, row: %u, pressed: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed);
-    }
+    is_volume_on_scroll = false;
 
     if (!process_record_user(keycode, record)) {
         return false;
@@ -102,6 +113,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
         toggle_drag_scroll();
     }
 
+    if (keycode == VOLUME_ON_SCROLL && record->event.pressed) {
+        is_volume_on_scroll = true;
+        return false; // Prevent further processing of this keycode
+    }
+
     if (keycode == SCROLL_OR_CLICK3) {
         is_drag_scroll = record->event.pressed;
 
@@ -109,9 +125,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             layer_on(2);
             mouse_moved = false;
             scroll_accumulated_h = scroll_accumulated_v = 0;
-            scroll_history_tail = scroll_history_head; // reset buffer
-            drag_scroll_timer = scroll_history_t[scroll_history_head] = timer_read();
-            scroll_history_x[scroll_history_head] = scroll_history_y[scroll_history_head] = 0;
+            drag_scroll_timer = timer_read();
         } else {
             layer_off(2);
             if (!mouse_moved && (timer_elapsed(drag_scroll_timer) < TAPPING_TERM)) {
@@ -120,7 +134,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             }
         }
         return false;
-
     }
 
     if (keycode == DRAG_SCROLL || keycode == MO(2)) {

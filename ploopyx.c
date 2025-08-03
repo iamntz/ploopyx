@@ -51,6 +51,7 @@ void cycle_dpi(void) {
 }
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
+
     mouse_moved = mouse_report.h != 0 || mouse_report.v != 0;
 
     if (!is_drag_scroll) {
@@ -105,12 +106,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
         is_drag_scroll = record->event.pressed;
 
         if(record->event.pressed) {
+            layer_on(2);
             mouse_moved = false;
             scroll_accumulated_h = scroll_accumulated_v = 0;
             scroll_history_tail = scroll_history_head; // reset buffer
             drag_scroll_timer = scroll_history_t[scroll_history_head] = timer_read();
             scroll_history_x[scroll_history_head] = scroll_history_y[scroll_history_head] = 0;
         } else {
+            layer_off(2);
             if (!mouse_moved && (timer_elapsed(drag_scroll_timer) < TAPPING_TERM)) {
                 // if we didn't scroll, it's a middle click
                 tap_code(KC_BTN3);

@@ -39,10 +39,8 @@
 #define PLOOPY_DRAGSCROLL_DIVISOR_V 80.0
 
 #define PLOOPY_VOLUME_SCROLL_DEBOUNCE 50
-// #define MOUSE_EXTENDED_REPORT true
 
-
-#define POINTING_DEVICE_ACCEL_TAKEOFF 3     // lower/higher value = curve takes off more smoothly/abruptly
-#define POINTING_DEVICE_ACCEL_GROWTH_RATE 4 // lower/higher value = curve reaches its upper limit slower/faster
-#define POINTING_DEVICE_ACCEL_OFFSET 2.5       // lower/higher value = acceleration kicks in earlier/later
-#define POINTING_DEVICE_ACCEL_LIMIT 0.3        // lower limit of accel curve (minimum acceleration factor)
+#define POINTING_DEVICE_ACCEL_TAKEOFF 3
+#define POINTING_DEVICE_ACCEL_GROWTH_RATE 4
+#define POINTING_DEVICE_ACCEL_OFFSET 2.5
+#define POINTING_DEVICE_ACCEL_LIMIT 0.3

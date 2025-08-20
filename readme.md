@@ -7,6 +7,7 @@
     - if you click, it's click 3
     - if you hold, it enables scroll _and_ switch to layer 2
     - adds `VOLUME_ON_SCROLL` code, which will allow you to control volume by moving the trackball
+3. Adds the `DPI_SLOW_MO` keycode. You can now slow down the cursor with a press of a button!
 
 ### Missing functionality?
 
@@ -22,7 +23,7 @@ ln -s  ~/custom-keyboards/ploopyx ~/vial-qmk/keyboards/ntz/ploopyx
 Since we're using some modules, install them.
 
 ```
-git submodule add https://github.com/drashna/qmk_modules.git ~/vial-qmk/modules/drashna 
+git submodule add https://github.com/drashna/qmk_modules.git ~/vial-qmk/modules/drashna
 ```
 
 Git submodule will make the qmk / vial repo dirty, so it will be trickier to update in the future. If you don't want to deal with that, just clone it:
@@ -43,5 +44,5 @@ qmk compile -kb ntz/ploopyx -km vial
 After flashing, you should also load `ploopy.vil` in your vial app, because it will add a couple of extra combos:
 - `KC_BTN3` & `SCROLL_OR_CLICK3` -> `KC_BTN3`
 - `KC_BTN4` & `KC_BTN5` -> media play/pause
-- `KC_BTN1` & `KC_BTN2` -> trackball will change volume 
+- `KC_BTN1` & `KC_BTN2` -> trackball will change volume
 - `KC_BTN1` & `KC_BTN4` -> win+tab

@@ -36,7 +36,7 @@ enum ploopy_keycodes {
     TOGGLE_DRAG_SCROLL,
     SCROLL_OR_CLICK3,
     VOLUME_ON_SCROLL,
-    DPI_MOMENTARY
+    DPI_SLOW_MO
 };
 
 bool encoder_update_user(uint8_t index, bool clockwise);

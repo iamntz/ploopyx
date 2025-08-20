@@ -118,6 +118,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
         return false; // Prevent further processing of this keycode
     }
 
+    if (keycode == DPI_SLOW_MO) {
+        if (record->event.pressed) {
+            pointing_device_set_cpi(PLOOPY_SLOW_DPI);
+        } else {
+            pointing_device_set_cpi(PLOOPY_FAST_DPI);
+        }
+    }
+
     if (keycode == SCROLL_OR_CLICK3) {
         is_drag_scroll = record->event.pressed;
 

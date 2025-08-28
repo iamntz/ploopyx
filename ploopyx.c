@@ -25,10 +25,17 @@ keyboard_config_t keyboard_config;
 uint16_t          dpi_array[] = PLOOPY_DPI_OPTIONS;
 #define DPI_OPTION_SIZE ARRAY_SIZE(dpi_array)
 
-// Trackball State
-bool  is_scroll_clicked    = false;
-bool  is_volume_on_scroll    = false;
-bool  is_drag_scroll       = false;
+bool is_scroll_clicked = false;
+bool is_volume_on_scroll = false;
+bool is_drag_scroll = false;
+
+bool scroll_h_locked = false;
+bool scroll_v_locked = false;
+bool prevent_scroll_lock = false;
+
+float total_scroll_h = 0;
+float total_scroll_v = 0;
+
 float scroll_accumulated_h = 0;
 float scroll_accumulated_v = 0;
 
@@ -70,12 +77,39 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         return pointing_device_task_user(mouse_report);
     }
 
-    scroll_accumulated_h += (float)mouse_report.x / PLOOPY_DRAGSCROLL_DIVISOR_H;
-    scroll_accumulated_v += (float)mouse_report.y / PLOOPY_DRAGSCROLL_DIVISOR_V;
+    float scroll_delta_h = (float)mouse_report.x / PLOOPY_DRAGSCROLL_DIVISOR_H;
+    float scroll_delta_v = (float)mouse_report.y / PLOOPY_DRAGSCROLL_DIVISOR_V;
+
+    total_scroll_h += scroll_delta_h;
+    total_scroll_v += scroll_delta_v;
+
+    // prevent_scroll_lock = prevent_scroll_lock || abs(total_scroll_h) > SCROLL_UNLOCK_THRESHOLD || abs(total_scroll_v) > SCROLL_UNLOCK_THRESHOLD;
+
+    // if (prevent_scroll_lock) {
+    //     scroll_v_locked = false;
+    //     scroll_h_locked = false;
+    // }
+
+    if (!prevent_scroll_lock && abs(total_scroll_h) > SCROLL_LOCK_THRESHOLD) {
+        scroll_v_locked = true;
+        scroll_h_locked = false;
+    }
+
+    if (!prevent_scroll_lock && abs(total_scroll_v) > SCROLL_LOCK_THRESHOLD) {
+        scroll_h_locked = true;
+        scroll_v_locked = false;
+    }
+
+    if (!scroll_h_locked) {
+        scroll_accumulated_h += scroll_delta_h;
+    }
+
+    if (!scroll_v_locked) {
+        scroll_accumulated_v += scroll_delta_v;
+    }
 
     int8_t direction_modifier = 1;
 
-    // Assign integer parts of accumulated scroll values to the mouse report
     #ifdef PLOOPY_DRAGSCROLL_INVERT
         direction_modifier = -1;
     #endif
@@ -133,6 +167,9 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             layer_on(2);
             mouse_moved = false;
             scroll_accumulated_h = scroll_accumulated_v = 0;
+            total_scroll_h = total_scroll_v = 0;
+            scroll_h_locked = scroll_v_locked = false;
+            prevent_scroll_lock = false;
             drag_scroll_timer = timer_read();
         } else {
             layer_off(2);
@@ -146,6 +183,9 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
 
     if (keycode == DRAG_SCROLL || keycode == MO(2)) {
         is_drag_scroll = record->event.pressed;
+        total_scroll_h = total_scroll_v = 0;
+        prevent_scroll_lock = false;
+        scroll_h_locked = scroll_v_locked = false;
     }
 
     return true;

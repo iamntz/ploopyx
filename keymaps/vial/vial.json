@@ -1,7 +1,7 @@
 {
   "name": "PloopyCo Trackball",
-  "vendorId": "0x5043",
-  "productId": "0x5442",
+  "vendorId": "0x5048",
+  "productId": "0x5432",
   "lighting": "none",
   "customKeycodes": [
     {"name": "DPI Config", "title": "DPI Config", "shortName": "DPI"},

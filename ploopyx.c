@@ -83,12 +83,14 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     total_scroll_h += scroll_delta_h;
     total_scroll_v += scroll_delta_v;
 
-    // prevent_scroll_lock = prevent_scroll_lock || abs(total_scroll_h) > SCROLL_UNLOCK_THRESHOLD || abs(total_scroll_v) > SCROLL_UNLOCK_THRESHOLD;
+    prevent_scroll_lock = prevent_scroll_lock ||
+        abs(total_scroll_h) > SCROLL_UNLOCK_THRESHOLD ||
+        abs(total_scroll_v) > SCROLL_UNLOCK_THRESHOLD;
 
-    // if (prevent_scroll_lock) {
-    //     scroll_v_locked = false;
-    //     scroll_h_locked = false;
-    // }
+    if (prevent_scroll_lock) {
+        scroll_v_locked = false;
+        scroll_h_locked = false;
+    }
 
     if (!prevent_scroll_lock && abs(total_scroll_h) > SCROLL_LOCK_THRESHOLD) {
         scroll_v_locked = true;
@@ -139,17 +141,18 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
         return false;
     }
 
-    if (keycode == DPI_CONFIG && record->event.pressed) {
+    if (record->event.pressed && keycode == DPI_CONFIG) {
         cycle_dpi();
     }
 
-    if (keycode == TOGGLE_DRAG_SCROLL && record->event.pressed) {
+    if (record->event.pressed && keycode == TOGGLE_DRAG_SCROLL) {
         toggle_drag_scroll();
+        return false;
     }
 
-    if (keycode == VOLUME_ON_SCROLL && record->event.pressed) {
+    if (record->event.pressed && keycode == VOLUME_ON_SCROLL) {
         is_volume_on_scroll = true;
-        return false; // Prevent further processing of this keycode
+        return false;
     }
 
     if (keycode == DPI_SLOW_MO) {
@@ -178,6 +181,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
                 tap_code(KC_BTN3);
             }
         }
+        return false;
+    }
+
+    if (record->event.pressed && is_drag_scroll) {
+        is_drag_scroll = false;
         return false;
     }
 
